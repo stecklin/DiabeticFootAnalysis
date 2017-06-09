@@ -8,7 +8,7 @@ data <- readRDS("data.rds") %>%
 
 # remove probands with invalid measures
 allowed_range = 25
-filtered_data <- data %>% 
+data <- data %>% 
   group_by(ID) %>% 
   filter((max(MTK1.T) - min(MTK1.T) <= allowed_range) &
          (max(MTK2.T) - min(MTK2.T) <= allowed_range) &
@@ -20,8 +20,23 @@ filtered_data <- data %>%
          (max(C.T)    - min(C.T)    <= allowed_range)
   )
 
+# drop label
+clus_data <- subset(data, select=-Label)
 
+# transform POSIX time to ints
+clus_data <- transform(clus_data, Time=as.numeric(Time))
 
+# normalize temperatures to start from 0
+for (id in unique(clus_data$ID)) {
+  for (varIdx in 2:10) {
+    clus_data[clus_data$ID == id,varIdx] <- 
+      clus_data[clus_data$ID == id,varIdx] - 
+      clus_data[which(clus_data$ID == id)[1],varIdx]
+  }
+}
+
+# Get column names of timeseries variants
+vNames <- c("MTK1.T", "MTK2.T", "MTK3.T", "MTK4.T", "MTK5.T", "D1.T", "L.T", "C.T")
 ## Transform data frame to matrix tsMat with 
 ## tsMat[timestep, variant, patientID] and pad end with zeros
 
