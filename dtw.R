@@ -6,6 +6,22 @@ data <- readRDS("data.rds") %>%
         tidyr::unnest() %>% 
         select(c(ID, Label, Time, MTK1.T, MTK2.T, MTK3.T, MTK4.T, MTK5.T, D1.T, L.T, C.T))
 
+# remove probands with invalid measures
+allowed_range = 25
+filtered_data <- data %>% 
+  group_by(ID) %>% 
+  filter((max(MTK1.T) - min(MTK1.T) <= allowed_range) &
+         (max(MTK2.T) - min(MTK2.T) <= allowed_range) &
+         (max(MTK3.T) - min(MTK3.T) <= allowed_range) &
+         (max(MTK4.T) - min(MTK4.T) <= allowed_range) &
+         (max(MTK5.T) - min(MTK5.T) <= allowed_range) &
+         (max(D1.T)   - min(D1.T)   <= allowed_range) &
+         (max(L.T)    - min(L.T)    <= allowed_range) &
+         (max(C.T)    - min(C.T)    <= allowed_range)
+  )
+
+
+
 ## Transform data frame to matrix tsMat with 
 ## tsMat[timestep, variant, patientID] and pad end with zeros
 
