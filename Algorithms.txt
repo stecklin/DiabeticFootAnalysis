@@ -1,0 +1,28 @@
+stats::hclust -> Hierarchical Clustering
+    Exposed Parameters:
+        Method: Complete, Single, Centroid linkage -> Radio Buttons
+    OutputViz:
+        Dendrogram -> Diagram Space
+    Parameters of Output:
+        Number of Clusters -> Slider
+    Function Call:
+        hclust(distMat, method=<Method>)
+        
+cluster::pam -> Partitioning around Medoids (Robust k-Means)
+    Exposed Parameters:
+        Number of Clusters -> Slider
+    OutputViz:
+        -
+    Parameters of Output:
+        -
+    Function Call:
+        pam(distMat, <Number of Clusters>)
+        
+dbscan::dbscan -> Density Based Clustering
+    Exposed Parameters:
+        Epsilon Neighbourhood -> Slider
+        Minimum Points -> Slider
+    OutputViz:
+        -
+    Function Call:
+        dbscan(distMat, <Epsilon>, minPts=<Minimum Points>)
