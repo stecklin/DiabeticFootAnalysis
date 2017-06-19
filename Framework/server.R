@@ -11,15 +11,14 @@ library(shiny)
 library(dplyr)
 library(ggplot2)
 library(stringr)
-source("./Framework/dataUtils.R")
+source("dataUtils.R")
 
 # Define server logic required to draw a plot
 shinyServer(function(input, output) {
   
 #load diabetic foot data
-# !!!!!!!!!! path must be changed!!!  
-footdata <- loadRawData("./data.rds")
-distMat <- loadDistData("./dtwDist_openEnd_cleaned.rds")
+footdata <- loadRawData("../data.rds")
+distMat <- loadDistData("../dtwDist_openEnd_cleaned.rds")
 
 
 # reactive builds a reactive object, object will respond to every reactive value in the code

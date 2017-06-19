@@ -18,18 +18,15 @@ loadRawData <- function(path) {
              (max(C.T)    - min(C.T)    <= allowed_range)
       )
 
-    # drop label
-    clus_data <- subset(data, select=-Label)
-
     # transform POSIX time to ints
-    clus_data <- transform(clus_data, Time=as.numeric(Time))
+    data <- transform(data, Time=as.numeric(Time))
 
     # normalize temperatures to start from 0
-    for (id in unique(clus_data$ID)) {
-      for (varIdx in 2:10) {
-        clus_data[clus_data$ID == id,varIdx] <- 
-          clus_data[clus_data$ID == id,varIdx] - 
-          clus_data[which(clus_data$ID == id)[1],varIdx]
+    for (id in unique(data$ID)) {
+      for (varIdx in 3:11) {
+        data[data$ID == id,varIdx] <- 
+          data[data$ID == id,varIdx] - 
+          data[which(data$ID == id)[1],varIdx]
       }
     }
     return(data)
