@@ -8,55 +8,67 @@
 #
 
 library(shiny)
+library(shinydashboard)
 library(ggplot2)
 
-# Define UI for application that draws a histogram
- shinyUI(
-   
-   fluidPage(
-     # Title 
-     titlePanel("Diabetic Foot Application"),
-     fluidRow(
-       # Side panels
-       column(3,
-              wellPanel(
-                selectInput(inputId = "algorithmns", label = "Choose an Algorithm:",
-                            choices = c("Height","Weight", "Age"))
-              ),
-              wellPanel(
-                h4("Filter"),
-                tags$small(paste0(
-                  "Depending on the selected algorithm, the user can modify different parameters"
-                )),
-                sliderInput("year", "I am a slider", 1940, 2014, value = c(1970, 2014)),
-                sliderInput("oscars", "I am another slider",
-                            0, 4, 0, step = 1),
-                
-                textInput("director", "Field for textinput"),
-                textInput("cast", "Another field for textinput")
-              ),
-              wellPanel(
-                selectInput("xvar", "Dummy x Variable", choices = c("A","B", "C")),
-                selectInput("yvar", "Dummy y Variable", choices = c("1","2", "3")),
-                tags$small(paste0(
-                  "Note: Dummy for a note!"
-                ))
-              )
-       ),
-       
-       #Plots
-       column(9,
-              # currently a histogram
-              plotOutput(outputId = "plot1"),
-              wellPanel(
-                span("Dummy Histplot",
-                     textOutput("Dummy Values")
-                )
-              ),
-              # currently a scatterplot
-              plotOutput(outputId = "plot2")
-       )
-     )
-   )   
+header <- dashboardHeader(title = "Diabetic Foot Application")
 
+# side bar with input parameters
+
+sidebar <- dashboardSidebar(
+  
+    selectInput("algorithm", "Choose an Algorithm:", list("Hierarchical Clusting"="hclust", "Partitioning around Metoids"="pam", "Density Based Clustering"="dbscan")),
+    conditionalPanel(
+     condition = "input.algorithm =='hclust'",
+     radioButtons("linkage", "Choose a Linkage Type:", c("Complete Linkage"="complete","Single Linkage"="single","Centroid Linkage"="centroid")),
+     sliderInput("hclustnum", "Number of Clusters",1, 10, 0, step = 1)
+    ),
+
+    conditionalPanel(
+     condition = "input.algorithm =='pam'",
+     sliderInput("pclusttnum", "Number of Clusters",1, 10, 0, step = 1, value=4)
+    ),
+
+    conditionalPanel(
+     condition = "input.algorithm =='dbscan'",
+     numericInput("epsilon", "Epsilon Neightborhood",3),
+     sliderInput("minPoints", "Number of Minimum Points",1, 10, 0, step = 1,value=4)
+    ),
+  
+    
+    fluidRow(
+          column(1,tableOutput(outputId = "summary"))
+          )
 )
+
+# body consisting of plots
+
+body <- dashboardBody(
+
+    fluidPage(
+      
+      fluidRow(
+        column(6,plotOutput(outputId="mtk1_plot")),  
+        column(6,plotOutput(outputId="mtk2_plot"))
+ 
+      ),
+      
+      fluidRow(
+        column(6,plotOutput(outputId="mtk3_plot")),  
+        column(6,plotOutput(outputId="mtk4_plot"))
+      ),
+      
+      fluidRow(
+        column(6,plotOutput(outputId="mtk5_plot")),  
+        column(6,plotOutput(outputId="D1.T"))
+      ),
+      
+      fluidRow(
+        column(6,plotOutput(outputId="L.T")),  
+        column(6,plotOutput(outputId="C.T"))
+      )
+  )
+)
+
+
+ui <- dashboardPage(header, sidebar, body)

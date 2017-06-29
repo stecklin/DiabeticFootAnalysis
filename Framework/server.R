@@ -11,52 +11,121 @@ library(shiny)
 library(dplyr)
 library(ggplot2)
 library(stringr)
+library(cluster)
+library(dbscan)
 source("dataUtils.R")
+source("evaluateResults.R")
 
-# Define server logic required to draw a plot
+
 shinyServer(function(input, output) {
+
+# load datasets  
+footdata <- loadRawData("C:/Users/Alina/Desktop/Uni/VisualAnalytics/Projekt/Daten_Zusatzaufgabe/data.rds")
+distMat <- loadDistData("C:/Users/Alina/Desktop/Uni/VisualAnalytics/Projekt/Git/dtwDist_openEnd_cleaned.rds")  
+
+# plot mean timeline
+plot_mean <- function(data,sensor){
   
-#load diabetic foot data
-footdata <- loadRawData("../data.rds")
-distMat <- loadDistData("../dtwDist_openEnd_cleaned.rds")
+  if(input$algorithm=="hclust")
+    predict<- addPredictions(footdata, clust_hclust()$clustering)
+  if(input$algorithm=="pam")   
+    predict<- addPredictions(footdata, clust_pam()$clustering)
+  if(input$algorithm=="dbscan")
+    predict<- addPredictions(footdata, clust_db()$cluster)
+  
+  mean <- getMean(predict,data)
+  names(mean)<-c("Cluster", "Time", "Mean")
+  mean$Cluster <- factor(mean$Cluster)
+  ggplot(data=mean, aes(x=Time, y=Mean, group=Cluster, color=Cluster)) +
+    geom_line()+
+    geom_point()+
+    ggtitle(sensor)
+}
 
+# function for diabetic cluster info box
+summary_plot<- function(){
+  
+  if(input$algorithm=="hclust")
+    predict<- addPredictions(footdata, clust_hclust()$clustering)
+  if(input$algorithm=="pam")   
+    predict<- addPredictions(footdata, clust_pam()$clustering)
+  if(input$algorithm=="dbscan")
+    predict<- addPredictions(footdata, clust_db()$cluster)
+  
+  summa <- aggregate(x=predict$Prediction,by=list(predict$Label,predict$Prediction), FUN=length)
+  names(summa)<-c("Label","Cluster","Number")
+  return(summa)
+  
+}
 
-# reactive builds a reactive object, object will respond to every reactive value in the code
-# some histplot dummy
-histplot <- reactive({
- 
-  if(input$algorithmns == "Height")
-    hist(footdata$Height, main= "Histogram for height", xlab= "Height", border="blue", col="green")
-  if(input$algorithmns == "Weight")
-    hist(footdata$Weight, main= "Histogram for weight", xlab= "Weight", border="blue", col="red")
-  if(input$algorithmns == "Age")
-    hist(footdata$Age, main= "Histogram for age", xlab= "Age", border="blue", col="yellow")
-    
+# ---- reactive clustering algirithms --------- # 
+clust_pam <- reactive({
+  pam(distMat, input$pclusttnum)
 })
 
-#some scatterplot dummy
-scatterplot <- reactive({
-  
-  if(input$algorithmns == "Height")
-    plot(footdata$Height, footdata$Weight)
-  if(input$algorithmns == "Age")
-    plot(footdata$Age, footdata$Weight)
-    
+clust_hclust <- reactive({
+  hclust(distMat, method=input$linkage)
 })
 
-output$plot1 <- renderPlot({
-  
- dataplots = histplot()
- print(dataplots)
-  
+clust_db <- reactive({
+  dbscan(distMat, input$epsilon, minPts=input$minPoints)
 })
+#-----------------------------------------------
 
-output$plot2 <- renderPlot({
+#----- 8 plots for each sensor ------------------
+output$mtk1_plot <- renderPlot({
   
-  dataplots = scatterplot()
-  print(dataplots)
+  plot_mean(footdata$MTK1.T,"MTK1.T")
   
 })
 
+output$mtk2_plot <- renderPlot({
+  
+  plot_mean(footdata$MTK2.T,"MTK2.T")
+  
+})
+
+output$mtk3_plot <- renderPlot({
+  
+  plot_mean(footdata$MTK3.T,"MTK3.T")
+  
+})
+
+output$mtk4_plot <- renderPlot({
+  
+  plot_mean(footdata$MTK4.T,"MTK4.T")
+  
+})
+
+output$mtk5_plot <- renderPlot({
+  
+  plot_mean(footdata$MTK5.T,"MTK5.T")
+  
+})
+
+output$D1.T <- renderPlot({
+  
+  plot_mean(footdata$D1.T,"D1.T")
+  
+})
+
+output$L.T <- renderPlot({
+  
+  plot_mean(footdata$L.T,"L.T")
+  
+})
+
+output$C.T <- renderPlot({
+  
+  plot_mean(footdata$C.T,"C.T")
+  
+})
+
+#output info cluster box
+output$summary<-renderTable({
+  
+  summary_plot()
+  
+})
   
 })
