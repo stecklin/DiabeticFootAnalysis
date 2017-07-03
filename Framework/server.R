@@ -38,7 +38,6 @@ plot_mean <- function(data,sensor){
   mean$Cluster <- factor(mean$Cluster)
   ggplot(data=mean, aes(x=Time, y=Mean, group=Cluster, color=Cluster)) +
     geom_line()+
-    geom_point()+
     ggtitle(sensor)
 }
 
@@ -52,7 +51,7 @@ summary_plot<- function(){
   if(input$algorithm=="dbscan")
     predict<- addPredictions(footdata, clust_db()$cluster)
   
-  summa <- aggregate(x=predict$Prediction,by=list(predict$Label,predict$Prediction), FUN=length)
+  summa <- getStatistics(predict)
   names(summa)<-c("Label","Cluster","Number")
   return(summa)
   
