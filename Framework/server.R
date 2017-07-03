@@ -27,7 +27,7 @@ distMat <- loadDistData("C:/Users/Alina/Desktop/Uni/VisualAnalytics/Projekt/Git/
 plot_mean <- function(data,sensor){
   
   if(input$algorithm=="hclust")
-    predict<- addPredictions(footdata, clust_hclust()$clustering)
+    predict<- addPredictions(footdata, clust_hclust())
   if(input$algorithm=="pam")   
     predict<- addPredictions(footdata, clust_pam()$clustering)
   if(input$algorithm=="dbscan")
@@ -46,7 +46,7 @@ plot_mean <- function(data,sensor){
 summary_plot<- function(){
   
   if(input$algorithm=="hclust")
-    predict<- addPredictions(footdata, clust_hclust()$clustering)
+    predict<- addPredictions(footdata, clust_hclust())
   if(input$algorithm=="pam")   
     predict<- addPredictions(footdata, clust_pam()$clustering)
   if(input$algorithm=="dbscan")
@@ -60,11 +60,12 @@ summary_plot<- function(){
 
 # ---- reactive clustering algirithms --------- # 
 clust_pam <- reactive({
-  pam(distMat, input$pclusttnum)
+  pam(distMat, input$pclustnum)
 })
 
 clust_hclust <- reactive({
-  hclust(distMat, method=input$linkage)
+  hc <- hclust(as.dist(distMat), method=input$linkage)
+  return(cutree(hc, k=input$hclustnum))
 })
 
 clust_db <- reactive({

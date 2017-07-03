@@ -17,22 +17,22 @@ header <- dashboardHeader(title = "Diabetic Foot Application")
 
 sidebar <- dashboardSidebar(
   
-    selectInput("algorithm", "Choose an Algorithm:", list("Hierarchical Clusting"="hclust", "Partitioning around Metoids"="pam", "Density Based Clustering"="dbscan")),
+    selectInput("algorithm", "Choose an Algorithm:", list("Hierarchical Clustering"="hclust", "Partitioning around Medoids"="pam", "Density Based Clustering"="dbscan")),
     conditionalPanel(
      condition = "input.algorithm =='hclust'",
      radioButtons("linkage", "Choose a Linkage Type:", c("Complete Linkage"="complete","Single Linkage"="single","Centroid Linkage"="centroid")),
-     sliderInput("hclustnum", "Number of Clusters",1, 10, 0, step = 1)
+     sliderInput("hclustnum", "Number of Clusters",1, 10, 0, step = 1, value=4)
     ),
 
     conditionalPanel(
      condition = "input.algorithm =='pam'",
-     sliderInput("pclusttnum", "Number of Clusters",1, 10, 0, step = 1, value=4)
+     sliderInput("pclustnum", "Number of Clusters",1, 10, 0, step = 1, value=4)
     ),
 
     conditionalPanel(
      condition = "input.algorithm =='dbscan'",
      numericInput("epsilon", "Epsilon Neightborhood",3),
-     sliderInput("minPoints", "Number of Minimum Points",1, 10, 0, step = 1,value=4)
+     sliderInput("minPoints", "Minimum Number of Points",1, 10, 0, step = 1,value=4)
     ),
   
     
