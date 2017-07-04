@@ -20,8 +20,8 @@ source("evaluateResults.R")
 shinyServer(function(input, output) {
 
 # load datasets  
-footdata <- loadRawData("C:/Users/Alina/Desktop/Uni/VisualAnalytics/Projekt/Daten_Zusatzaufgabe/data.rds")
-distMat <- loadDistData("C:/Users/Alina/Desktop/Uni/VisualAnalytics/Projekt/Git/dtwDist_openEnd_cleaned.rds")  
+footdata <- loadRawData("../data.rds")
+distMat <- loadDistData("../dtwDist_openEnd_cleaned.rds")  
 
 # plot mean timeline
 plot_mean <- function(data,sensor){
@@ -33,17 +33,18 @@ plot_mean <- function(data,sensor){
   if(input$algorithm=="dbscan")
     predict<- addPredictions(footdata, clust_db()$cluster)
   
+  predict$Prediction <- factor(predict$Prediction)
   mean <- getMean(predict,data)
   names(mean)<-c("Cluster", "Time", "Mean")
-  mean$Cluster <- factor(mean$Cluster)
   ggplot(data=mean, aes(x=Time, y=Mean, group=Cluster, color=Cluster)) +
-    geom_line()+
+    geom_line() +
+    geom_line(data = predict, aes(x=Time, y=data, group=ID, color=Prediction), alpha=0.1) +
     ggtitle(sensor)
 }
 
 # function for diabetic cluster info box
 summary_plot<- function(){
-  
+    
   if(input$algorithm=="hclust")
     predict<- addPredictions(footdata, clust_hclust())
   if(input$algorithm=="pam")   
