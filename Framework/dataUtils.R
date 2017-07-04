@@ -4,6 +4,8 @@ loadRawData <- function(path) {
             tidyr::unnest() %>% 
             select(c(ID, Label, Time, MTK1.T, MTK2.T, MTK3.T, MTK4.T, MTK5.T, D1.T, L.T, C.T))
 
+    data$ID <- as.factor(data$ID)
+
     # remove probands with invalid measures
     allowed_range = 25
     data <- data %>% 
